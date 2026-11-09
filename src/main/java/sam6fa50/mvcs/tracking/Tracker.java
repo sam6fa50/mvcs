@@ -33,9 +33,9 @@ public class Tracker {
         return chunkTracker.stageDiff();
     }
 
-    public boolean commit(String string) {
+    public boolean commit(String commitMsg) {
         if (canCommit) {
-            chunkTracker.commit();
+            chunkTracker.commit(commitMsg);
             canCommit = false;
             return true;
         }

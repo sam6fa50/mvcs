@@ -22,6 +22,27 @@ public class MixinBus {
         Tracker
                 .getCurrentInstance()
                 .getChunkTracker()
-                .addChunkToTrack(dimension, pos);
+                .trackChunk(dimension, pos);
+    }
+
+    public void onBlockSet(ResourceKey<Level> dimension, ChunkPos pos) {
+        // Tracker
+        //         .getCurrentInstance()
+        //         .getChunkTracker()
+        //         .trackChunk(dimension, pos);
+    }
+
+    public boolean isTracked(ResourceKey<Level> dimension, ChunkPos chunkPos) {
+        return Tracker
+                .getCurrentInstance()
+                .getChunkTracker()
+                .isTracked(dimension, chunkPos);
+    }
+
+    public void onBlockStateSet(ResourceKey<Level> dimension, ChunkPos pos) {
+        Tracker
+                .getCurrentInstance()
+                .getChunkTracker()
+                .trackChunk(dimension, pos);
     }
 }

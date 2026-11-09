@@ -3,8 +3,8 @@
 	"package": "sam6fa50.mvcs.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
-		"ChunkMarkedUnsavedMixin",
-		"ExampleMixin"
+		"ChunkAccessUnsavedMixin",
+		"LevelChunkSetBlockStateMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
