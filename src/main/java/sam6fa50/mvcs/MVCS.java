@@ -4,12 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.storage.LevelResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import sam6fa50.mvcs.tracking.Tracker;
-import sam6fa50.mvcs.tracking.MixinBus;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -25,10 +26,10 @@ public class MVCS implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	// Our tracker object, per world
-	private static Tracker tracker = null;
+	protected static Tracker tracker = null;
 
 	// Our event intercept, singleton per launch
-	private static final MixinBus MIXIN_BUS = MixinBus.getInstance();
+	public static final MixinBus MIXIN_BUS = MixinBus.getInstance();
 
 	// Our GSON interface object
 	public static final Gson GSON = new GsonBuilder()
@@ -38,24 +39,29 @@ public class MVCS implements ModInitializer {
 
     @Override
 	public void onInitialize() {
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
-		// Proceed with mild caution.
+		handleTrackerRegistration();
+		handleTrackerDeregistration();
+	}
 
-		LOGGER.info("Hello Fabric world!");
+	public static Identifier id(String path) {
+		return Identifier.fromNamespaceAndPath(MOD_ID, path);
+	}
 
+	private void handleTrackerRegistration() {
 		ServerLifecycleEvents.SERVER_STARTED.register(minecraftServer -> {
 			// Our tracker object is per world
 			tracker = Tracker.getCurrentInstance();
 		});
+	}
 
+	private void handleTrackerDeregistration() {
 		ServerLifecycleEvents.SERVER_STOPPING.register(minecraftServer -> {
 			Path saveDirectory = minecraftServer
 					.getWorldPath(LevelResource.ROOT)
 					.resolve("mvcs");
 
-            try {
-                Files.createDirectories(saveDirectory);
+			try {
+				Files.createDirectories(saveDirectory);
 
 				Path trackerFile = saveDirectory.resolve("tracker.json");
 
@@ -65,16 +71,12 @@ public class MVCS implements ModInitializer {
 						StandardCharsets.UTF_8);
 
 				LOGGER.info("Tracker saved to {}", trackerFile);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 
-            // Tracker killed each world save after serializing
+			// Tracker killed each world save after serializing
 			Tracker.closeCurrentInstance();
 		});
-	}
-
-	public static Identifier id(String path) {
-		return Identifier.fromNamespaceAndPath(MOD_ID, path);
 	}
 }

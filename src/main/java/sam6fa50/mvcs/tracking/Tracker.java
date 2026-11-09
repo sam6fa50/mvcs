@@ -1,13 +1,9 @@
 package sam6fa50.mvcs.tracking;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import java.nio.file.Files;
-
 // The Tracker class tracks all tracked components of a commit
 public class Tracker {
     private static Tracker server_instance = null;
+    private boolean canCommit = false;
     private ChunkTracker chunkTracker = null;
 
     private Tracker() {
@@ -26,8 +22,25 @@ public class Tracker {
         server_instance = null;
     }
 
-    public ChunkTracker getChunkTracker() {
-        return chunkTracker;
+    public boolean stage(StageScope scope) {
+        chunkTracker.stage(scope);
+
+        canCommit = true;
+        return true;
+    }
+
+    public String stageDiff() {
+        return chunkTracker.stageDiff();
+    }
+
+    public boolean commit(String string) {
+        if (canCommit) {
+            chunkTracker.commit();
+            canCommit = false;
+            return true;
+        }
+
+        return false;
     }
 
     public String serialize() {
@@ -38,5 +51,9 @@ public class Tracker {
         } else throw new RuntimeException("ChunkTracker is null");
 
         return json.toString();
+    }
+
+    public ChunkTracker getChunkTracker() {
+        return chunkTracker;
     }
 }

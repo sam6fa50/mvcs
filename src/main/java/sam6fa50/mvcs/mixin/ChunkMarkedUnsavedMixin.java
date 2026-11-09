@@ -8,7 +8,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import sam6fa50.mvcs.tracking.MixinBus;
+import sam6fa50.mvcs.MVCS;
+import sam6fa50.mvcs.MixinBus;
 
 // This mixin intercepts the `markUnsaved()` function in `ChunkAccess` that
 // is needed to get a chunk's dimension and pos so that we are able to identify
@@ -17,24 +18,31 @@ import sam6fa50.mvcs.tracking.MixinBus;
 public class ChunkMarkedUnsavedMixin {
     @Inject(at = @At("HEAD"), method = "markUnsaved")
     private void mvcs$onMarkedUnsaved(CallbackInfo ci) {
-        ChunkAccess chunk = (ChunkAccess)(Object)this;
+        ChunkAccess chunk = (ChunkAccess)((Object)this);
 
         // This mixin covers LevelChunk and ImposterProtoChunk
         if (chunk instanceof LevelChunk levelChunk) {
-            MixinBus.getInstance().onMarkedUnsaved(
+           MVCS.MIXIN_BUS.onMarkedUnsaved(
                     levelChunk
                             .getLevel()
                             .dimension(),
                     levelChunk.getPos()
             );
+
+            MVCS.LOGGER.info("MARKED A LEVEL CHUNK DIRTY: ({}, z: {})",
+                    levelChunk.getPos().x(), levelChunk.getPos().z());
+
         } else if (chunk instanceof ImposterProtoChunk imposterProtoChunk) {
-            MixinBus.getInstance().onMarkedUnsaved(
+            MVCS.MIXIN_BUS.onMarkedUnsaved(
                     imposterProtoChunk
                             .getWrapped()
                             .getLevel()
                             .dimension(),
                     imposterProtoChunk.getPos()
             );
+
+            MVCS.LOGGER.info("MARKED AN IMPOSTER PROTO CHUNK DIRTY: ({}, z: {})",
+                    imposterProtoChunk.getPos().x(), imposterProtoChunk.getPos().z());
         }
     }
 }

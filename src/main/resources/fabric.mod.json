@@ -16,7 +16,8 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"sam6fa50.mvcs.MVCS"
+			"sam6fa50.mvcs.MVCS",
+			"sam6fa50.mvcs.MVCSCommands"
 		],
 		"client": [
 			"sam6fa50.mvcs.client.MVCSClient"
